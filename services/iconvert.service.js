@@ -8,39 +8,39 @@ module.exports = service;
 function getRate(currencyCode) {
     return new Promise( (resolve, reject) => {
         LatestRate
-            .find({'rate.code': currencyCode})
+            .find({'rates.code': currencyCode})
             .exec()
-            .then( latestRate => resolve(latestRate))
-            .catch( err => reject(err));
+            .then( latestRate => resolve(latestRate) )
+            .catch( err => reject(err) );
 
     });
 }
 
-function computeRate(rateSrc, rateDst) {
+function computeRealRate(rateSrc, rateDst) {
     return rateDst/rateSrc;
 }
 
-service.convert = (options) => {
+service.convert = (query) => {
     let rateValue = [];
     let src = 0, dst = 0;
-    Promise.all([getRate(options.currencySrc), getRate(options.currencyDst)])
+    Promise.all([getRate(query.source), getRate(query.target)])
         .then( rates => {
            return rates.map( (rate, index) => rate.rates );
         })
         .then(rates => rateValue = rate)
-        .catch (err => console.log(err));
+        .catch (err => { throw err });
 
     for( let idx in rateValue) {
         let val = rateValue[idx];
         for(prop in val) {
-            if (prop === val[options.currencySrc]) {
+            if (prop === val[query.source]) {
                 src = val[prop];
             }
-            if (prop === val[options.currencyDSt]) {
+            if (prop === val[query.target]) {
                 dst = val[prop];
             }
         }
     }
 
-    let realRate = computeRate(src, dst);
+    let realRate = computeRealRate(src, dst);
 };

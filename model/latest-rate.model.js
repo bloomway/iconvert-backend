@@ -25,7 +25,7 @@ let latestRateDefinition = {
         type: String,
         required: true
     },
-    rate: {
+    rates: {
         type: rateSchema,
         required: true
     }
